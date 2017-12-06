@@ -112,7 +112,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-    //LocationListenerで自動生成された必要な関数
+    //LocationListenerで自動生成された必要な関数.位置情報が変化すると、onLocationChangedがコールバックされる
+    //getLatitude()とgetLongitude()を使って緯度経度を取得可能
+    //位置情報が通知されるたびにコールバックされるメソッド
     @Override
     public void onLocationChanged(Location targetlocation) {
         /*ここ消す　0.5秒間隔でチェックし直す設定
@@ -131,17 +133,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          ここ消す*/
         //final long minTime = 500;/* 位置情報の通知するための最小時間間隔（ミリ秒） */
         //final long minDistance = 1;/* 位置情報を通知するための最小距離間隔（メートル）*/
+        // ↓利用可能なロケーションプロバイダによる位置情報の取得の開始FIXME 本来であれば、リスナが複数回登録されないようにチェックする必要がある
         //locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, this);
-        //targetlocation = locationManager.getLastKnownLocation(locationProvider);
+        //targetlocation = locationManager.getLastKnownLocation(locationProvider);// 最新の位置情報
         double x = targetlocation.getLatitude();//緯度の代入
         double y = targetlocation.getLongitude();// 経度の代入
         LatLng myLocation = new LatLng(x, y);
         mMap.addMarker(new MarkerOptions().position(myLocation).title("ここにいます。"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
     }
-    //↓コピペで意味不明,LocationListenerで自動生成された必要な関数
+    //LocationListenerで自動生成された必要な関数
+    //ロケーションステータスが変わるとコールバックされるメソッド
     @Override
     public void onStatusChanged(String provider, int status, Bundle bundle) {
+        // 利用可能なプロバイダの利用状態が変化したときに呼ばれる
+        //↓コピペ,意味不明,
         switch (status) {
             case LocationProvider.AVAILABLE:
                 Log.d("debug", "LocationProvider.AVAILABLE");
@@ -155,13 +161,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
     //LocationListenerで自動生成された必要な関数
+    //ロケーションプロバイダが利用可能になるとコールバックされるメソッド
     @Override
     public void onProviderEnabled(String s) {
-
+        //プロバイダが利用可能になったら呼ばれる
     }
     //LocationListenerで自動生成された必要な関数
+    //ロケーションプロバイダが利用不可能になるとコールバックされるメソッド
     @Override
     public void onProviderDisabled(String s) {
-
+        //ロケーションプロバイダーが使われなくなったらリムーブする必要がある
     }
 }
