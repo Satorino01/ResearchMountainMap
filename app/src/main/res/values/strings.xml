@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MountainMap</string>
     <string name="title_activity_maps">MountainMap</string>
+    <string name="itemName">現在地：</string>
 </resources>
