@@ -34,6 +34,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // ここで1秒間スリープし、スプラッシュを表示させたままにする。
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        // スプラッシュthemeを通常themeに変更する
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_maps);//表示するレイアウトxmlの指定(res/layout/.xml)
         //地図が使われる準備ができているとき、SupportMapFragmentを得て、通知されてください。
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
