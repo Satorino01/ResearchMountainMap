@@ -1,5 +1,6 @@
 <!--wrap_content:サイズを自動調整して表示する--><!--文字を左にandroid:gravity="left"-->
-<!--fill_parent:match_parent:親オブジェクトのサイズ一杯に表示する-->
+<!--fill_parent:match_parent:親オブジェクトのサイズ一杯に表示する--><!--使えない　app:srcCompat="@drawable/hambugermenu"-->
+<!--FrameLayoutはデフォルトで　layout_gravity="top|right"-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19,20 +20,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="48dp"
         android:gravity="left"
         android:text="@string/itemName"
         android:textColor="#000000"
         android:textSize="16sp" />
 
     <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginLeft="288dp"
+        android:id="@+id/bugerButton"
+        android:layout_gravity="top|right"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
+        android:onClick="onClickFinish"
         android:scaleType="centerInside"
-        app:srcCompat="@drawable/hambugermenu" />
+        android:background="@drawable/hambugermenu" />
 
 </FrameLayout>

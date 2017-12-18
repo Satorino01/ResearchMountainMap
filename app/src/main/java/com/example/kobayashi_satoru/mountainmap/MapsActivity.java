@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 //FragmentActivityでFragmentクラスを継承します
@@ -39,8 +42,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        // スプラッシュthemeを通常themeに変更する
-        setTheme(R.style.AppTheme);
+        setTheme(R.style.AppTheme);// スプラッシュの表示動作指定。themeを通常themeに変更する
         setContentView(R.layout.activity_maps);//表示するレイアウトxmlの指定(res/layout/.xml)
         //地図が使われる準備ができているとき、SupportMapFragmentを得て、通知されてください。
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -179,4 +181,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderDisabled(String s) {
         //ロケーションプロバイダーが使われなくなったらリムーブする必要がある
     }
+    // 終了ボタン用
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)//finishAndRemoveTaskの自動生成
+    public void onClickFinish(View view){
+        finishAndRemoveTask();//タスク一覧から消す&アプリの終了。APIレベル21以降から使える
+        finish();//アプリの終了。タスク一覧に空の画面が出っ放し。↑が実行されなかったとき用
+    }
+
 }
