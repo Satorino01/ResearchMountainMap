@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -12,10 +13,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -27,6 +30,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -69,8 +74,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     1000, 50, this);
         }
+        //test0();
+        //test1();
+    }
+    private void test0(){
+        String start = "東京駅";
+        String destination = "スカイツリー";
+
+        // 電車:r
+        String dir = "r";
+        // 車:d
+        //String dir = "d";
+        // 歩き:w
+        //String dir = "w";
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+        intent.setData(Uri.parse("http://maps.google.com/maps?saddr="+start+"&daddr="+destination+"&dirflg="+dir));
+        startActivity(intent);
 
     }
+    // 緯度経度を入れて経路を検索
+    private void test1(){
+        String src_lat = "35.681382";
+        String src_ltg = "139.7660842";
+        String des_lat = "35.684752";
+        String des_ltg = "139.707937";
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+        intent.setData(Uri.parse("http://maps.google.com/maps?saddr="+src_lat+","+src_ltg+"&daddr="+des_lat+","+des_ltg));
+        startActivity(intent);
+    }
+
     //mMapにgooglemapを代入
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -153,7 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //    ユーザーが許可を与えるケースを取り扱うために、onRequestPermissionsResult（int requestCode、String［］許可、int［］grantResults）
         //    を無効にします。詳細はActivityCompat#requestPermissionsについてはドキュメンテーションを見てください。*/
          /*ここ消す*/
-        final long minTime = 500;/* 位置情報の通知するための最小時間間隔（ミリ秒） */
+        final long minTime = 10000;/* 位置情報の通知するための最小時間間隔（ミリ秒） */
         final long minDistance = 1;/* 位置情報を通知するための最小距離間隔（メートル）*/
         // ↓利用可能なロケーションプロバイダによる位置情報の取得の開始FIXME 本来であれば、リスナが複数回登録されないようにチェックする必要がある
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, this);
@@ -166,11 +204,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float targetDirection = targetlocation.getBearing();//方位 確認用hasBearing()	北が０で時計回りに増加します。
         LatLng myLocation = new LatLng(x, y);
         mMap.addMarker(new MarkerOptions().position(myLocation).title(japTime));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.markerpin)).snippet(japTime)
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+        cameraZoom(myLocation);
         CountView();
-
-        //CameraPosition cameraPos = new CameraPosition.Builder().target(new LatLng(targetlocation.getLatitude(), targetlocation.getLongitude())).zoom(21).bearing(0).build();
-        //mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
+        String string = "null";
+        ReverseGeocode rg = new ReverseGeocode();
+        try {
+            string = rg.point2address(this,targetlocation.getLatitude(), targetlocation.getLongitude());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        TextView locationText = findViewById(R.id.textView);
+        locationText.setText("現在地："+ string);
+    }
+    private void cameraZoom( LatLng location ) {
+        float zoom = 14.0f; //ズームレベル
+        float tilt = 0.0f; // 0.0 - 90.0  //チルトアングル
+        float bearing = 0.0f; //向き
+        CameraPosition pos = new CameraPosition(location, zoom, tilt, bearing); //CameraUpdate
+        CameraUpdate camera = CameraUpdateFactory.newCameraPosition(pos);
+        mMap.moveCamera(camera);
     }
     public void CountView(){
         Makercount+=1;
