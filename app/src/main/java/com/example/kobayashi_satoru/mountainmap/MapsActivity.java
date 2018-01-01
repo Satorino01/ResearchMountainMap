@@ -21,12 +21,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,12 +112,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
     }
 
+
     //mMapにgooglemapを代入
+    private ClusterManager<StringClusterItem> mClusterManager;
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
-        mMap.addMarker(new MarkerOptions().position(new LatLng(35.6140332,139.4945413)).title("小林慧の").snippet("自分の部屋"));
+  //      mMap.addMarker(new MarkerOptions().position(new LatLng(35.6140332,139.4945413)).title("小林慧の").snippet("自分の部屋"));
         /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -122,6 +127,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), "マーカータップ", Toast.LENGTH_LONG).show();
                 return false;
             }*/
+        //マーカ用情報ウィンドウに必要なやつ
+        mClusterManager = new ClusterManager<>(this, mMap);
+        mMap.setOnCameraChangeListener(mClusterManager);
+        //マーカ用情報ウィンドウ
+        mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(this)));
+        mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+        mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
+            @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
+                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        mMap.setOnInfoWindowClickListener(mClusterManager);
+        final LatLng lat = new LatLng(35.6140332,139.4945413);
+        StringClusterItem mozi = new StringClusterItem("MarkerTest",lat);
+        mClusterManager.addItem(mozi);
+        mClusterManager.cluster();
+    }
+    static class StringClusterItem implements ClusterItem {
+        final String title;
+        final LatLng latLng;
+        public StringClusterItem(String title, LatLng latLng) {
+            this.title = title;
+            this.latLng = latLng;
+        }
+        @Override public LatLng getPosition() {
+            return latLng;
+        }
     }
 
     //↓コピペで意味不明,onCreateで呼ばれてる
@@ -268,7 +301,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String useTime = (timeList[5]+"年"+ month +"月"+ timeList[2] +"日"+ timeMinuteSecond[0] +"時"+ timeMinuteSecond[1] +"分"+ timeMinuteSecond[2] +"秒");
         return useTime;
     }
-
     //LocationListenerで自動生成された必要な関数
     //ロケーションステータスが変わるとコールバックされるメソッド
     @Override
