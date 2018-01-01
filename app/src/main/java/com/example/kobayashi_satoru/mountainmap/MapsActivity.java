@@ -133,9 +133,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //マーカ用情報ウィンドウ
         mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(this)));
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+        final Intent intent = new Intent(this, InfoWindowResultActivity.class);
         mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
             @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
-                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_SHORT).show();
+                startActivity(intent);
             }
         });
         mMap.setOnInfoWindowClickListener(mClusterManager);
