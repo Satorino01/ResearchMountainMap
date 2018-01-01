@@ -135,8 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
         mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
             @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
-                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title,
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_SHORT).show();
             }
         });
         mMap.setOnInfoWindowClickListener(mClusterManager);
@@ -162,8 +161,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d("debug", "locationStart()");
 
         // LocationManager インスタンス生成
-        locationManager =
-                (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.d("debug", "location manager Enabled");
@@ -302,7 +300,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return useTime;
     }
     //LocationListenerで自動生成された必要な関数
-    //ロケーションステータスが変わるとコールバックされるメソッド
+    //GPSプロバイダの状態が変化するとコールバックされるメソッド
     @Override
     public void onStatusChanged(String provider, int status, Bundle bundle) {
         // 利用可能なプロバイダの利用状態が変化したときに呼ばれる
@@ -321,14 +319,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //LocationListenerで自動生成された必要な関数
-    //ロケーションプロバイダが利用可能になるとコールバックされるメソッド
+    //GPSプロバイダが利用可能になるとコールバックされるメソッド
     @Override
     public void onProviderEnabled(String s) {
         //プロバイダが利用可能になったら呼ばれる
     }
 
     //LocationListenerで自動生成された必要な関数
-    //ロケーションプロバイダが利用不可能になるとコールバックされるメソッド
+    //GPSプロバイダが利用不可能になるとコールバックされるメソッド
     @Override
     public void onProviderDisabled(String s) {
         //ロケーションプロバイダーが使われなくなったらリムーブする必要がある

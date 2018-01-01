@@ -14,25 +14,47 @@
         android:layout_height="match_parent"
         tools:context="com.example.kobayashi_satoru.mountainmap.MapsActivity" />
 
-    <TextView
-        android:id="@+id/textView"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitStart"
+        android:background="@drawable/note" />
+
+    <EditText
+        android:id="@+id/editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="8dp"
+        android:ems="12"
+        android:inputType="textPersonName"
+        android:hint="登る山の名前を入力"
+        android:textColor="#333333"
+        android:textSize="8sp"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
         android:layout_marginTop="48dp"
         android:gravity="left"
         android:text="@string/itemName"
-        android:textColor="#000000"
-        android:textSize="16sp" />
+        android:textColor="#333333"
+        android:textSize="8sp" />
 
     <TextView
         android:id="@+id/countView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="24dp"
         android:layout_marginTop="80dp"
-        android:text="null" />
+        android:text="null"
+        android:textColor="#333333"
+        android:textSize="8sp"/>
 
     <ImageButton
         android:id="@+id/bugerButton"
@@ -44,5 +66,6 @@
         android:onClick="onClickFinish"
         android:scaleType="centerInside"
         android:background="@drawable/hambugermenu" />
+
 
 </FrameLayout>
