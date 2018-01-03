@@ -1,11 +1,16 @@
 package com.example.kobayashi_satoru.mountainmap;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+
+import static android.app.PendingIntent.getActivity;
+import static android.content.Intent.getIntent;
+
 
 /**
  * Created by kobayashi_satoru on 2018/01/01.
@@ -34,4 +39,11 @@ public class CustomInfoViewAdapter implements GoogleMap.InfoWindowAdapter {
 
         return popup;
     }
+    /*
+    @Override
+    public String onNewIntent(Intent intent) {
+        String PhotoID =intent.getStringExtra("画像データ");   // セットした値が取り出せる
+        return PhotoID;
+    }
+    */
 }

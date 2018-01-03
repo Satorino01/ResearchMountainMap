@@ -53,6 +53,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static int Makercount = 0;
     static LatLng TargetLatLng = new LatLng(0,0);
     static String TargetMountainName = "null";
+    static String TargetMountainNamePhotoID = "null";
+    static int TargetMountainPhotoID = 0;
 
 
     // Fragmentで表示するViewを作成するメソッド
@@ -128,7 +130,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         mMap.setMyLocationEnabled(true);
-  //      mMap.addMarker(new MarkerOptions().position(new LatLng(35.6140332,139.4945413)).title("小林慧の").snippet("自分の部屋"));
+        //      mMap.addMarker(new MarkerOptions().position(new LatLng(35.6140332,139.4945413)).title("小林慧の").snippet("自分の部屋"));
         /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -146,14 +148,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
             @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
                 //Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_SHORT).show();
+                intent.putExtra("画像データ",TargetMountainNamePhotoID+Integer.toString(TargetMountainPhotoID));
                 startActivity(intent);
+
             }
         });
         mMap.setOnInfoWindowClickListener(mClusterManager);
-        final LatLng lat = new LatLng(35.6140332,139.4945413);
-        StringClusterItem mozi = new StringClusterItem("MarkerTest",lat);
-        mClusterManager.addItem(mozi);
-        //mClusterManager.cluster();
+        for (int i = 0; i < 10; i++) {
+            final LatLng latLng = new LatLng(-34 + i, 151 + i);
+            mClusterManager.addItem(new StringClusterItem("Marker #" + (i + 1), latLng));
+        }
+        mClusterManager.cluster();
     }
 
     static class StringClusterItem implements ClusterItem {
@@ -251,6 +256,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CountView();
         if(Makercount==1) {
             cameraZoom(myLocation);
+            TextView gpsStatusText = findViewById(R.id.gpsStatusView);
+            gpsStatusText.setText("GPS：ON");
         }
         //MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker))
         if(Makercount==1||Makercount%10==0) {
@@ -395,14 +402,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //操作後のEtidTextの状態を取得する
         if(editable.toString().equals("高尾山")){
             mMap.clear();
+            mClusterManager.clearItems();
+
             TargetLatLng = new LatLng(35.6251319,139.2435817);
             TargetMountainName = editable.toString();
+            TargetMountainNamePhotoID = "takaozann";
+
+            Toast toast = Toast.makeText(this,
+                    TargetMountainName+"を目標地点に設定", Toast.LENGTH_LONG);
+       toast.show();
+
             cameraZoom(TargetLatLng);
             mMap.addMarker(new MarkerOptions().position(TargetLatLng).title(TargetMountainName+"頂上").icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
 
+            TargetMountainPhotoID=1;
             final LatLng lat = new LatLng(35.6309329,139.2557798);
             StringClusterItem markPhoto = new StringClusterItem("takao01",lat);
             mClusterManager.addItem(markPhoto);
+        }else{
+            mMap.clear();
         }
     }
     public void onClickGoogleWalk(View view) {
