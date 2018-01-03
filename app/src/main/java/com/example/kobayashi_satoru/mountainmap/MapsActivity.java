@@ -150,18 +150,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //クラスターマーカ改造実行反映
         final CustomClusterRenderer renderer = new CustomClusterRenderer(this, mMap, mClusterManager);
         mClusterManager.setRenderer(renderer);
-        //クラスターマーカ用情報ウィンドウ
+        //クラスターをクリックした時の動作
+        mClusterManager.setOnClusterClickListener(
+                new ClusterManager.OnClusterClickListener<StringClusterItem>() {
+                    @Override public boolean onClusterClick(Cluster<StringClusterItem> cluster) {
+
+                        Toast.makeText(MapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
+
+                        // if true, do not move camera
+
+                        return false;
+                    }
+                });
+        //改造マーカーをクリックした時の動作
+        mClusterManager.setOnClusterItemClickListener(
+                new ClusterManager.OnClusterItemClickListener<StringClusterItem>() {
+                    @Override public boolean onClusterItemClick(StringClusterItem clusterItem) {
+
+                        Toast.makeText(MapsActivity.this, "Cluster item click", Toast.LENGTH_SHORT).show();
+
+                        // if true, click handling stops here and do not show info view, do not move camera
+                        // you can avoid this by calling:
+                        // renderer.getMarker(clusterItem).showInfoWindow();
+
+                        return false;
+                    }
+                });
+        mMap.setOnMarkerClickListener(mClusterManager);
+        //情報ウィンドウクリック用セット
         mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(this)));
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+        //情報ウィンドウクリック用
         final Intent intent = new Intent(this, InfoWindowResultActivity.class);
         mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
             @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
-                //Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_LONG).show();
                 intent.putExtra("画像データ",TargetMountainNamePhotoID+Integer.toString(TargetMountainPhotoID));
                 startActivity(intent);
 
             }
         });
+
+
         //マーカ表示テスト用
         mMap.setOnInfoWindowClickListener(mClusterManager);
         for (int i = 0; i < 10; i++) {

@@ -1,15 +1,11 @@
 package com.example.kobayashi_satoru.mountainmap;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
-
-import static android.app.PendingIntent.getActivity;
-import static android.content.Intent.getIntent;
 
 
 /**

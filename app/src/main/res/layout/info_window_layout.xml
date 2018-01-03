@@ -5,7 +5,7 @@
     android:id="@+id/title"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="#333333"
     android:drawableTop="@mipmap/ic_launcher"
     android:gravity="center"
     android:textColor="@android:color/white"
