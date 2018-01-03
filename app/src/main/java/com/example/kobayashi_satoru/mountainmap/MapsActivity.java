@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,12 +22,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.ui.IconGenerator;
 
 import android.location.Location;
 import android.location.LocationManager;
@@ -138,10 +143,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), "マーカータップ", Toast.LENGTH_LONG).show();
                 return false;
             }*/
-        //マーカ用情報ウィンドウに必要なやつ
+        //クラスターマーカ用情報ウィンドウに必要なやつ
         mClusterManager = new ClusterManager<>(this, mMap);
         mMap.setOnCameraChangeListener(mClusterManager);
-        //マーカ用情報ウィンドウ
+
+        //クラスターマーカ改造実行反映
+        final CustomClusterRenderer renderer = new CustomClusterRenderer(this, mMap, mClusterManager);
+        mClusterManager.setRenderer(renderer);
+        //クラスターマーカ用情報ウィンドウ
         mClusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(this)));
         mMap.setInfoWindowAdapter(mClusterManager.getMarkerManager());
         final Intent intent = new Intent(this, InfoWindowResultActivity.class);
@@ -153,6 +162,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+        //マーカ表示テスト用
         mMap.setOnInfoWindowClickListener(mClusterManager);
         for (int i = 0; i < 10; i++) {
             final LatLng latLng = new LatLng(-34 + i, 151 + i);
@@ -171,6 +181,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override public LatLng getPosition() {
             return latLng;
         }
+    }
+    //クラスタリング改造クラス
+    public class CustomClusterRenderer extends DefaultClusterRenderer<StringClusterItem> {
+        private final Context mContext;
+        public CustomClusterRenderer(Context context, GoogleMap map,ClusterManager<MapsActivity.StringClusterItem> clusterManager) {
+            super(context, map, clusterManager);
+
+            mContext = context;
+        }
+        //クラスタリングマーカー改造メソッド↓従来のマーカーをレンダリングする前に呼び出されます。
+        @Override protected void onBeforeClusterItemRendered(MapsActivity.StringClusterItem item, MarkerOptions markerOptions) {
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker)).snippet(item.title);
+        }
+        //クラスタリングの背景指定。クラスタをレンダリングする前に呼び出されます
+        @Override protected void onBeforeClusterRendered(Cluster<StringClusterItem> cluster, MarkerOptions markerOptions) {
+            final IconGenerator mClusterIconGenerator;
+            // in constructor
+            mClusterIconGenerator = new IconGenerator(mContext.getApplicationContext());
+
+            mClusterIconGenerator.setBackground(
+                    ContextCompat.getDrawable(mContext, R.drawable.background_circle));
+            mClusterIconGenerator.setTextAppearance(R.style.AppTheme_WhiteTextAppearance);
+            final Bitmap icon = mClusterIconGenerator.makeIcon(String.valueOf(cluster.getSize()));
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+        }
+
     }
 
     //↓コピペで意味不明,onCreateで呼ばれてる
