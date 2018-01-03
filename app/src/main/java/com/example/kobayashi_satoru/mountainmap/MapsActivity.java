@@ -1,9 +1,12 @@
 package com.example.kobayashi_satoru.mountainmap;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -18,6 +21,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -28,9 +32,12 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,11 +46,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 //FragmentActivityでFragmentクラスを継承します
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,TextWatcher {
 
     GoogleMap mMap;
     LocationManager locationManager;
-    static int Makercount=0;
+    static int Makercount = 0;
+    static LatLng TargetLatLng = new LatLng(0,0);
+    static String TargetMountainName = "null";
+
 
     // Fragmentで表示するViewを作成するメソッド
     @Override
@@ -79,27 +89,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         //test0();
         //test1();
+        //ネットにつなっているかの初回確認
+        TextView netStatusText = findViewById(R.id.netStatusView);
+        if (netWorkCheck(this.getApplicationContext())){
+            netStatusText.setText("NET：ON");
+        } else {
+            netStatusText.setText("NET：OFF");
+        }
+        //editTextのリアルタイム監視に必要なメソッド
+        EditText edittext = findViewById(R.id.editText);
+        edittext.addTextChangedListener(this);
     }
-    private void test0(){
-        String start = "東京駅";
-        String destination = "スカイツリー";
 
-        // 電車:r
-        String dir = "r";
-        // 車:d
-        //String dir = "d";
-        // 歩き:w
-        //String dir = "w";
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-        intent.setData(Uri.parse("http://maps.google.com/maps?saddr="+start+"&daddr="+destination+"&dirflg="+dir));
-        startActivity(intent);
-
-    }
     // 緯度経度を入れて経路を検索
-    private void test1(){
+    private void test1() {
         String src_lat = "35.681382";
         String src_ltg = "139.7660842";
         String des_lat = "35.684752";
@@ -107,18 +110,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-        intent.setData(Uri.parse("http://maps.google.com/maps?saddr="+src_lat+","+src_ltg+"&daddr="+des_lat+","+des_ltg));
+        intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+        intent.setData(Uri.parse("http://maps.google.com/maps?saddr=" + src_lat + "," + src_ltg + "&daddr=" + des_lat + "," + des_ltg));
         startActivity(intent);
     }
 
 
     //mMapにgooglemapを代入
     private ClusterManager<StringClusterItem> mClusterManager;
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        //現在位置の表示
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
   //      mMap.addMarker(new MarkerOptions().position(new LatLng(35.6140332,139.4945413)).title("小林慧の").snippet("自分の部屋"));
         /*mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -144,8 +153,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final LatLng lat = new LatLng(35.6140332,139.4945413);
         StringClusterItem mozi = new StringClusterItem("MarkerTest",lat);
         mClusterManager.addItem(mozi);
-        mClusterManager.cluster();
+        //mClusterManager.cluster();
     }
+
     static class StringClusterItem implements ClusterItem {
         final String title;
         final LatLng latLng;
@@ -224,9 +234,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //    ユーザーが許可を与えるケースを取り扱うために、onRequestPermissionsResult（int requestCode、String［］許可、int［］grantResults）
         //    を無効にします。詳細はActivityCompat#requestPermissionsについてはドキュメンテーションを見てください。*/
          /*ここ消す*/
-        final long minTime = 10000;/* 位置情報の通知するための最小時間間隔（ミリ秒） */
-        final long minDistance = 1;/* 位置情報を通知するための最小距離間隔（メートル）*/
+        final long minTime = 60000;/* 位置情報の通知するための最小時間間隔（ミリ秒） */
+        final long minDistance = 10;/* 位置情報を通知するための最小距離間隔（メートル）*/
         // ↓利用可能なロケーションプロバイダによる位置情報の取得の開始FIXME 本来であれば、リスナが複数回登録されないようにチェックする必要がある
+        assert locationManager != null;
         locationManager.requestLocationUpdates(locationProvider, minTime, minDistance, this);
         targetlocation = locationManager.getLastKnownLocation(locationProvider);// 最新の位置情報
         double x = targetlocation.getLatitude();//緯度の代入
@@ -236,18 +247,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float targetSpeed = targetlocation.getSpeed();//速度	確認用hasSpeed()	単位m毎秒
         float targetDirection = targetlocation.getBearing();//方位 確認用hasBearing()	北が０で時計回りに増加します。
         LatLng myLocation = new LatLng(x, y);
-        mMap.addMarker(new MarkerOptions().position(myLocation).title(japTime));//.icon(BitmapDescriptorFactory.fromResource(R.drawable.markerpin)).snippet(japTime)
-        cameraZoom(myLocation);
+
         CountView();
-        String string = "null";
-        ReverseGeocode rg = new ReverseGeocode();
-        try {
-            string = rg.point2address(this,targetlocation.getLatitude(), targetlocation.getLongitude());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(Makercount==1) {
+            cameraZoom(myLocation);
         }
-        TextView locationText = findViewById(R.id.textView);
-        locationText.setText("現在地："+ string);
+        //MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker))
+        if(Makercount==1||Makercount%10==0) {
+            mMap.addMarker(new MarkerOptions().position(myLocation).anchor((float) 0.5, (float) 0.5).rotation(targetDirection).title(japTime).icon(BitmapDescriptorFactory.fromResource(R.drawable.tracker)));//
+            //リバースジオコーディングの呼び出し
+            String string = "null";
+            ReverseGeocode rg = new ReverseGeocode();
+            try {
+                string = rg.point2address(this,targetlocation.getLatitude(), targetlocation.getLongitude());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            TextView locationText = findViewById(R.id.locationView);
+            locationText.setText("現在地："+ string);
+        }
     }
     private void cameraZoom( LatLng location ) {
         float zoom = 14.0f; //ズームレベル
@@ -261,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Makercount+=1;
         String kazumo = String.valueOf(Makercount);
         TextView textViewHensuu = findViewById(R.id.countView);
-        textViewHensuu.setText("マーカー数："+kazumo);
+        textViewHensuu.setText("位置情報取得回数："+kazumo);
     }
 
     //long型UNIX時間をStringを日本の日付に変換するメソッド
@@ -318,6 +336,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d("debug", "LocationProvider.TEMPORARILY_UNAVAILABLE");
                 break;
         }
+        //ネットにつなっているかの確認
+        TextView netStatusText = findViewById(R.id.netStatusView);
+        if (netWorkCheck(this.getApplicationContext())){
+            netStatusText.setText("NET：ON");
+        } else {
+            netStatusText.setText("NET：OFF");
+        }
     }
 
     //LocationListenerで自動生成された必要な関数
@@ -325,6 +350,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onProviderEnabled(String s) {
         //プロバイダが利用可能になったら呼ばれる
+        TextView gpsStatusText = findViewById(R.id.gpsStatusView);
+        gpsStatusText.setText("GPS：ON");
     }
 
     //LocationListenerで自動生成された必要な関数
@@ -332,6 +359,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onProviderDisabled(String s) {
         //ロケーションプロバイダーが使われなくなったらリムーブする必要がある
+        TextView gpsStatusText = findViewById(R.id.gpsStatusView);
+        gpsStatusText.setText("GPS：OFF");
+    }
+    //ネットワークステータスのチェックに必要な関数
+    public static boolean netWorkCheck(Context context){
+        ConnectivityManager cm =  (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if( info != null ){
+            return info.isConnected();
+        } else {
+            return false;
+        }
     }
 
     // 終了ボタン用
@@ -341,4 +380,84 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         finish();//アプリの終了。タスク一覧に空の画面が出っ放し。↑が実行されなかったとき用
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+        //操作前のEtidTextの状態を取得する
+    }
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int start, int count, int after) {
+        //操作中のEtidTextの状態を取得する
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+        //操作後のEtidTextの状態を取得する
+        if(editable.toString().equals("高尾山")){
+            mMap.clear();
+            TargetLatLng = new LatLng(35.6251319,139.2435817);
+            TargetMountainName = editable.toString();
+            cameraZoom(TargetLatLng);
+            mMap.addMarker(new MarkerOptions().position(TargetLatLng).title(TargetMountainName+"頂上").icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
+
+            final LatLng lat = new LatLng(35.6309329,139.2557798);
+            StringClusterItem markPhoto = new StringClusterItem("takao01",lat);
+            mClusterManager.addItem(markPhoto);
+        }
+    }
+    public void onClickGoogleWalk(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+            toast.show();
+        }else{
+            String start = "現在地";
+            String destination = TargetMountainName;
+
+            // 電車:r
+            //String dir = "r";
+            // 車:d
+            //String dir = "d";
+            // 歩き:w
+            String dir = "w";
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+            intent.setData(Uri.parse("http://maps.google.com/maps?saddr=" + start + "&daddr=" + destination + "&dirflg=" + dir));
+            startActivity(intent);
+        }
+    }
+    public void onClickGoogleTrain(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+            toast.show();
+        }else{
+            String start = "現在地";
+            String destination = TargetMountainName;
+
+            // 電車:r
+            String dir = "r";
+            // 車:d
+            //String dir = "d";
+            // 歩き:w
+            //String dir = "w";
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+            intent.setData(Uri.parse("http://maps.google.com/maps?saddr=" + start + "&daddr=" + destination + "&dirflg=" + dir));
+            startActivity(intent);
+        }
+    }
+    public void onClickTargetMountain(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+            toast.show();
+        }else{
+            cameraZoom(TargetLatLng);
+        }
+    }
 }

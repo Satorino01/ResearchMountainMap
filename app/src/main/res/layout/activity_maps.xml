@@ -25,24 +25,33 @@
 
     <EditText
         android:id="@+id/editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:ems="12"
         android:inputType="textPersonName"
         android:hint="登る山の名前を入力"
         android:textColor="#333333"
-        android:textSize="8sp"/>
+        android:textSize="8sp" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/gpsStatusView"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="40dp"
         android:layout_width="128dp"
         android:layout_height="wrap_content"
+        android:text="GPS：OFF"
+        android:textColor="#333333"
+        android:textSize="8sp" />
+
+    <TextView
+        android:id="@+id/netStatusView"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="48dp"
-        android:gravity="left"
-        android:text="@string/itemName"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:text="NET：OFF"
         android:textColor="#333333"
         android:textSize="8sp" />
 
@@ -51,12 +60,69 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="80dp"
-        android:text="null"
+        android:layout_marginTop="56dp"
+        android:text="位置情報取得回数：null"
         android:textColor="#333333"
         android:textSize="8sp"/>
 
+    <TextView
+        android:id="@+id/locationView"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="64dp"
+        android:gravity="left"
+        android:text="@string/itemName"
+        android:textColor="#333333"
+        android:textSize="8sp" />
+
+    <Button
+        android:id="@+id/Button"
+        android:onClick="onClickFinish"
+        android:layout_gravity="top|right"
+        android:layout_marginRight="52dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="80dp"
+        android:layout_height="48dp"
+        android:text="アプリの終了"
+        android:textColor="#333333"
+        android:textSize="8sp" />
+
+    <Button
+        android:id="@+id/googleWalkButton"
+        android:onClick="onClickGoogleWalk"
+        android:layout_gravity="top|right"
+        android:layout_marginRight="128dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="80dp"
+        android:layout_height="48dp"
+        android:text="GoogleMapで経路表示"
+        android:textColor="#333333"
+        android:textSize="8sp" />
+    <Button
+        android:id="@+id/googleTrainButton"
+        android:onClick="onClickGoogleTrain"
+        android:layout_gravity="top|right"
+        android:layout_marginRight="128dp"
+        android:layout_marginTop="48dp"
+        android:layout_width="80dp"
+        android:layout_height="48dp"
+        android:text="電車経路の表示"
+        android:textColor="#333333"
+        android:textSize="8sp" />
+
     <ImageButton
+        android:id="@+id/targetButton"
+        android:layout_gravity="top|right"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="56dp"
+        android:onClick="onClickTargetMountain"
+        android:scaleType="centerInside"
+        android:background="@drawable/targetbutton" />
+
+    <!--ImageButton
         android:id="@+id/bugerButton"
         android:layout_gravity="top|right"
         android:layout_width="32dp"
@@ -65,7 +131,7 @@
         android:layout_marginTop="16dp"
         android:onClick="onClickFinish"
         android:scaleType="centerInside"
-        android:background="@drawable/hambugermenu" />
+        android:background="@drawable/hambugermenu" /-->
 
 
 </FrameLayout>

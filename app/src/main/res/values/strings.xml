@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">やまれぽ</string>
     <string name="title_activity_maps">MountainMap</string>
-    <string name="itemName">現在地：</string>
+    <string name="itemName">現在地：null</string>
 </resources>
