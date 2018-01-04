@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -154,7 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new ClusterManager.OnClusterClickListener<StringClusterItem>() {
                     @Override public boolean onClusterClick(Cluster<StringClusterItem> cluster) {
 
-                        //Toast.makeText(MapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MapsActivity.this, "Cluster click", Toast.LENGTH_LONG).show();
 
                         // if true, do not move camera
 
@@ -166,7 +168,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new ClusterManager.OnClusterItemClickListener<StringClusterItem>() {
                     @Override public boolean onClusterItemClick(StringClusterItem clusterItem) {
 
-                        //Toast.makeText(MapsActivity.this, "Cluster item click", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MapsActivity.this, "Cluster item click", Toast.LENGTH_LONG).show();
 
                         // if true, click handling stops here and do not show info view, do not move camera
                         // you can avoid this by calling:
@@ -271,7 +273,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 // それでも拒否された時の対応
                 Toast toast = Toast.makeText(this,
-                        "これ以上なにもできません", Toast.LENGTH_SHORT);
+                        "これ以上なにもできません", Toast.LENGTH_LONG);
                 toast.show();
             }
         }
@@ -471,7 +473,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             cameraZoom(TargetLatLng);
             mMap.addMarker(new MarkerOptions().position(TargetLatLng).title(TargetMountainName+"頂上").icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
 
-
+            //マーカセット用
             LatLng[] photoLatlong = new LatLng[20];
             photoLatlong[0] = new LatLng(35.6309329,139.2557798);//takaozann1
             photoLatlong[1] = new LatLng(35.6305362,139.2554631);//takaozann2
@@ -493,6 +495,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             photoLatlong[17] = new LatLng(35.6247153,139.2432579);
             photoLatlong[18] = new LatLng(35.6250185,139.243602 );
             photoLatlong[19] = new LatLng(35.6246956,139.2432038);
+
             //マーカセット用
             mMap.setOnInfoWindowClickListener(mClusterManager);
             for (int i = 0; i < photoLatlong.length; i++) {
@@ -500,6 +503,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mClusterManager.addItem(new StringClusterItem("" + viewId , photoLatlong[i]));
             }
             mClusterManager.cluster();
+            //経路表示
+            PolylineOptions rectOptions = new PolylineOptions()
+                    .add(new LatLng(37.35, -122.0))
+                    .add(new LatLng(37.45, -122.0))  // North of the previous point, but at the same longitude
+                    .add(new LatLng(37.45, -122.2))  // Same latitude, and 30km to the west
+                    .add(new LatLng(37.35, -122.2))  // Same longitude, and 16km to the south
+                    .add(new LatLng(37.35, -122.0)); // Closes the polyline.
+            Polyline polyline = mMap.addPolyline(rectOptions);
+            
         }else{
             TargetLatLng = new LatLng(0,0);
             TargetMountainName = "null";
@@ -511,7 +523,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClickGoogleWalk(View view) {
         if(TargetMountainName.equals("null")) {
             Toast toast = Toast.makeText(this,
-                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
             toast.show();
         }else{
             String start = "現在地";
@@ -534,7 +546,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClickGoogleTrain(View view) {
         if(TargetMountainName.equals("null")) {
             Toast toast = Toast.makeText(this,
-                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
             toast.show();
         }else{
             String start = "現在地";
@@ -554,13 +566,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startActivity(intent);
         }
     }
+    public void onClickGoogleCar(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
+            toast.show();
+        }else{
+            String start = "現在地";
+            String destination = TargetMountainName;
+
+            // 電車:r
+            //String dir = "r";
+            // 車:d
+            String dir = "d";
+            // 歩き:w
+            //String dir = "w";
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+            intent.setData(Uri.parse("http://maps.google.com/maps?saddr=" + start + "&daddr=" + destination + "&dirflg=" + dir));
+            startActivity(intent);
+        }
+    }
+    public void onClickSave(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
+            toast.show();
+        }else{
+            Toast toast = Toast.makeText(this,
+                    "保存しました", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+    public void onClickLord(View view) {
+        if(TargetMountainName.equals("null")) {
+            Toast toast = Toast.makeText(this,
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
+            toast.show();
+        }else{
+            Toast toast = Toast.makeText(this,
+                    "ごめんなさい！未実装です。", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
     public void onClickTargetMountain(View view) {
         if(TargetMountainName.equals("null")) {
             Toast toast = Toast.makeText(this,
-                    "登る山の名前を入力してください", Toast.LENGTH_SHORT);
+                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
             toast.show();
         }else{
             cameraZoom(TargetLatLng);
         }
     }
+    public void onClickResult(View view) {
+            Toast toast = Toast.makeText(this,
+                    "ごめんなさい！未実装です。", Toast.LENGTH_LONG);
+            toast.show();
+    }
+
 }
