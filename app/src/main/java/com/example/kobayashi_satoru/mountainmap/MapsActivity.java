@@ -472,10 +472,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(new MarkerOptions().position(TargetLatLng).title(TargetMountainName+"頂上").icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
 
 
-            LatLng[] photoLatlong = new LatLng[2];
+            LatLng[] photoLatlong = new LatLng[20];
             photoLatlong[0] = new LatLng(35.6309329,139.2557798);//takaozann1
             photoLatlong[1] = new LatLng(35.6305362,139.2554631);//takaozann2
-
+            photoLatlong[2] = new LatLng(35.6302891,139.2554089);
+            photoLatlong[3] = new LatLng(35.6301904,139.2547552);
+            photoLatlong[4] = new LatLng(35.6299598,139.2534169);
+            photoLatlong[5] = new LatLng(35.629133,139.2519582);
+            photoLatlong[6] = new LatLng(35.6276235,139.2503081);
+            photoLatlong[7] = new LatLng(35.6261898,139.2508381);
+            photoLatlong[8] = new LatLng(35.6256475,139.2506619);
+            photoLatlong[9] = new LatLng(35.6255583,139.2503437);
+            photoLatlong[10] = new LatLng(35.6261133,139.249805);
+            photoLatlong[11] = new LatLng(35.6265051,139.249813);
+            photoLatlong[12] = new LatLng(35.6263014,139.2490923);
+            photoLatlong[13] = new LatLng( 35.626357,139.2463414 );
+            photoLatlong[14] = new LatLng(35.6257824,139.2449585);
+            photoLatlong[15] = new LatLng(35.6254283,139.2441482);
+            photoLatlong[16] = new LatLng(35.6248742,139.2434163);
+            photoLatlong[17] = new LatLng(35.6247153,139.2432579);
+            photoLatlong[18] = new LatLng(35.6250185,139.243602 );
+            photoLatlong[19] = new LatLng(35.6246956,139.2432038);
             //マーカセット用
             mMap.setOnInfoWindowClickListener(mClusterManager);
             for (int i = 0; i < photoLatlong.length; i++) {
