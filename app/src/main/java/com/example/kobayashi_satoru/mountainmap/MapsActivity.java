@@ -59,7 +59,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static LatLng TargetLatLng = new LatLng(0,0);
     static String TargetMountainName = "null";
     static String TargetMountainNamePhotoID = "null";
-    static int TargetMountainPhotoID = 0;
 
 
     // Fragmentで表示するViewを作成するメソッド
@@ -155,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new ClusterManager.OnClusterClickListener<StringClusterItem>() {
                     @Override public boolean onClusterClick(Cluster<StringClusterItem> cluster) {
 
-                        Toast.makeText(MapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
 
                         // if true, do not move camera
 
@@ -167,7 +166,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new ClusterManager.OnClusterItemClickListener<StringClusterItem>() {
                     @Override public boolean onClusterItemClick(StringClusterItem clusterItem) {
 
-                        Toast.makeText(MapsActivity.this, "Cluster item click", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MapsActivity.this, "Cluster item click", Toast.LENGTH_SHORT).show();
 
                         // if true, click handling stops here and do not show info view, do not move camera
                         // you can avoid this by calling:
@@ -184,21 +183,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final Intent intent = new Intent(this, InfoWindowResultActivity.class);
         mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
             @Override public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
-                Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_LONG).show();
-                intent.putExtra("画像データ",TargetMountainNamePhotoID+Integer.toString(TargetMountainPhotoID));
+                //Toast.makeText(MapsActivity.this, "Clicked info window: " + stringClusterItem.title, Toast.LENGTH_LONG).show();
+                intent.putExtra("画像データ",stringClusterItem.title);
                 startActivity(intent);
 
             }
         });
-
-
-        //マーカ表示テスト用
-        mMap.setOnInfoWindowClickListener(mClusterManager);
-        for (int i = 0; i < 10; i++) {
-            final LatLng latLng = new LatLng(-34 + i, 151 + i);
-            mClusterManager.addItem(new StringClusterItem("Marker #" + (i + 1), latLng));
-        }
-        mClusterManager.cluster();
     }
 
     static class StringClusterItem implements ClusterItem {
@@ -476,17 +466,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Toast toast = Toast.makeText(this,
                     TargetMountainName+"を目標地点に設定", Toast.LENGTH_LONG);
-       toast.show();
+            toast.show();
 
             cameraZoom(TargetLatLng);
             mMap.addMarker(new MarkerOptions().position(TargetLatLng).title(TargetMountainName+"頂上").icon(BitmapDescriptorFactory.fromResource(R.drawable.flag)));
 
-            TargetMountainPhotoID=1;
-            final LatLng lat = new LatLng(35.6309329,139.2557798);
-            StringClusterItem markPhoto = new StringClusterItem("takao01",lat);
-            mClusterManager.addItem(markPhoto);
+
+            LatLng[] photoLatlong = new LatLng[2];
+            photoLatlong[0] = new LatLng(35.6309329,139.2557798);//takaozann1
+            photoLatlong[1] = new LatLng(35.6305362,139.2554631);//takaozann2
+
+            //マーカセット用
+            mMap.setOnInfoWindowClickListener(mClusterManager);
+            for (int i = 0; i < photoLatlong.length; i++) {
+                int viewId = getResources().getIdentifier(TargetMountainNamePhotoID + (i + 1), "drawable", getPackageName());
+                mClusterManager.addItem(new StringClusterItem("" + viewId , photoLatlong[i]));
+            }
+            mClusterManager.cluster();
         }else{
+            TargetLatLng = new LatLng(0,0);
+            TargetMountainName = "null";
+            TargetMountainNamePhotoID = "null";
             mMap.clear();
+            mClusterManager.clearItems();
         }
     }
     public void onClickGoogleWalk(View view) {

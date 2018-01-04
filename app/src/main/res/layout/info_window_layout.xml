@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="#333333"
-    android:drawableTop="@mipmap/ic_launcher"
-    android:gravity="center"
-    android:textColor="@android:color/white"
-    tools:text="Text"
-    />
+    android:layout_width="128dp"
+    android:layout_height="64dp"
+    android:background="#333333" >
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/title"
+        android:layout_width="128dp"
+        android:layout_height="64dp"
+        android:background="#333333"
+        android:contentDescription="TODO"
+        android:gravity="center"
+        android:scaleType="fitCenter"
+        android:src="@drawable/test"
+        android:textColor="@android:color/white"
+        tools:text="Text" />
+    <!--TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_rounded"
+        android:drawableTop="@mipmap/ic_launcher"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        tools:text="Text"/-->
+</android.support.constraint.ConstraintLayout>

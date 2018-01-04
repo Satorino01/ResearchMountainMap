@@ -19,11 +19,12 @@ public class InfoWindowResultActivity extends AppCompatActivity {
         }else {
             /*Toast toast = Toast.makeText(this,
                     PhotoID, Toast.LENGTH_SHORT);
-            toast.show();
-            */
+            toast.show();*/
+
             ImageView imageView = findViewById(R.id.imageViewScenery);
-            int viewId = getResources().getIdentifier(PhotoID, "drawable", getPackageName());
-            imageView.setImageResource(viewId);
+            //int viewId = getResources().getIdentifier(PhotoID, "drawable", getPackageName());
+            //imageView.setImageResource(viewId);
+            imageView.setImageResource(Integer.parseInt(PhotoID));
             imageView.invalidate();
         }
     }
