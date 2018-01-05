@@ -2,4 +2,8 @@
     <string name="app_name">やまれぽ</string>
     <string name="title_activity_maps">MountainMap</string>
     <string name="itemName">現在地：null</string>
+    <string name="takaozannmap">35.6221460,139.2627390
+35.6228644,139.2633608
+35.6229273,139.2634698
+    </string>
 </resources>

@@ -113,13 +113,13 @@
 
     <Button
         android:id="@+id/TrackerLordButton"
-        android:onClick="onClickLord"
+        android:layout_width="80dp"
+        android:layout_height="48dp"
         android:layout_gravity="top|right"
         android:layout_marginRight="52dp"
         android:layout_marginTop="88dp"
-        android:layout_width="80dp"
-        android:layout_height="48dp"
-        android:text="足跡の読込"
+        android:onClick="onClickReset"
+        android:text="足跡のﾘｾｯﾄ"
         android:textColor="#333333"
         android:textSize="10sp" />
 

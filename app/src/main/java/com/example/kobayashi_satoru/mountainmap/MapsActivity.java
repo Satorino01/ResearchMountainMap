@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -22,7 +23,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -42,15 +42,22 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.example.kobayashi_satoru.mountainmap.R.string.takaozannmap;
 
 //FragmentActivityでFragmentクラスを継承します
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,TextWatcher {
@@ -61,7 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static LatLng TargetLatLng = new LatLng(0,0);
     static String TargetMountainName = "null";
     static String TargetMountainNamePhotoID = "null";
-
+    //トラッキング表示用初期設定
+    PolylineOptions rectOptions = new PolylineOptions()
+            .width(5)
+            .color(Color.BLUE)
+            .geodesic(true);
+    ArrayList<LatLng> rootlist = new ArrayList<LatLng>();
 
     // Fragmentで表示するViewを作成するメソッド
     @Override
@@ -310,7 +322,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float targetSpeed = targetlocation.getSpeed();//速度	確認用hasSpeed()	単位m毎秒
         float targetDirection = targetlocation.getBearing();//方位 確認用hasBearing()	北が０で時計回りに増加します。
         LatLng myLocation = new LatLng(x, y);
-
         CountView();
         if(Makercount==1) {
             cameraZoom(myLocation);
@@ -318,7 +329,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             gpsStatusText.setText("GPS：ON");
         }
         //MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker))
-        if(Makercount==1||Makercount%10==0) {
+        if(Makercount%10==0) {
             mMap.addMarker(new MarkerOptions().position(myLocation).anchor((float) 0.5, (float) 0.5).rotation(targetDirection).title(japTime).icon(BitmapDescriptorFactory.fromResource(R.drawable.tracker)));//
             //リバースジオコーディングの呼び出し
             String string = "null";
@@ -331,6 +342,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             TextView locationText = findViewById(R.id.locationView);
             locationText.setText("現在地："+ string);
         }
+        //トラッキング用ポイントの追加
+        Polyline polyline = mMap.addPolyline(rectOptions);
+        rootlist.add(myLocation);
+        polyline.setPoints(rootlist);
     }
     private void cameraZoom( LatLng location ) {
         float zoom = 14.0f; //ズームレベル
@@ -503,21 +518,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mClusterManager.addItem(new StringClusterItem("" + viewId , photoLatlong[i]));
             }
             mClusterManager.cluster();
-            //経路表示
+            //経路表示未熟
             PolylineOptions rectOptions = new PolylineOptions()
-                    .add(new LatLng(37.35, -122.0))
-                    .add(new LatLng(37.45, -122.0))  // North of the previous point, but at the same longitude
-                    .add(new LatLng(37.45, -122.2))  // Same latitude, and 30km to the west
-                    .add(new LatLng(37.35, -122.2))  // Same longitude, and 16km to the south
-                    .add(new LatLng(37.35, -122.0)); // Closes the polyline.
-            Polyline polyline = mMap.addPolyline(rectOptions);
-            
+                    .width(4)
+                    .color(Color.CYAN)
+                    .geodesic(true);
+            ArrayList<LatLng> mountainRootlist = new ArrayList<LatLng>();
+            Polyline mountainPolyline = mMap.addPolyline(rectOptions);
+            for(int i=0; i < 20;i++){
+                mountainRootlist.add(photoLatlong[i]);
+                mountainRootlist.add(new LatLng(35.6246956,139.2432038));
+            }
+            mountainPolyline.setPoints(mountainRootlist);
         }else{
             TargetLatLng = new LatLng(0,0);
             TargetMountainName = "null";
             TargetMountainNamePhotoID = "null";
             mMap.clear();
-            mClusterManager.clearItems();
         }
     }
     public void onClickGoogleWalk(View view) {
@@ -600,16 +617,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             toast.show();
         }
     }
-    public void onClickLord(View view) {
-        if(TargetMountainName.equals("null")) {
-            Toast toast = Toast.makeText(this,
-                    "登る山の名前を入力してください", Toast.LENGTH_LONG);
-            toast.show();
-        }else{
-            Toast toast = Toast.makeText(this,
-                    "ごめんなさい！未実装です。", Toast.LENGTH_LONG);
-            toast.show();
-        }
+    public void onClickReset(View view) {
+        mMap.clear();
     }
     public void onClickTargetMountain(View view) {
         if(TargetMountainName.equals("null")) {
