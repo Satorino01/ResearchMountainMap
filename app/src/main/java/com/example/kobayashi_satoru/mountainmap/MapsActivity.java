@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -26,7 +25,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -72,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static LatLng TargetLatLng = new LatLng(0,0);
     static String TargetMountainName = "null";
     static String TargetMountainNamePhotoID = "null";
+    Editable editableStatic = null;
     //トラッキング表示用初期設定
     PolylineOptions rectOptions = new PolylineOptions()
             .width(5)
@@ -509,7 +508,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             TargetLatLng = new LatLng(35.6251319,139.2435817);
             TargetMountainName = editable.toString();
             TargetMountainNamePhotoID = "takaozann";
-
+            editableStatic = editable;
             Toast toast = Toast.makeText(this,
                     TargetMountainName+"を目標地点に設定", Toast.LENGTH_LONG);
             toast.show();
@@ -732,10 +731,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked == true) {
             rootViewBoolean=isChecked;
-            Toast.makeText(MapsActivity.this, "ONにしました。もう一度山名を入力してください", Toast.LENGTH_LONG).show();
+            afterTextChanged(editableStatic);
+
         } else {
             rootViewBoolean=isChecked;
-            Toast.makeText(MapsActivity.this, "OFFにしました。もう一度山名を入力してください", Toast.LENGTH_LONG).show();
+            afterTextChanged(editableStatic);
         }
     }
 
