@@ -731,11 +731,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked == true) {
             rootViewBoolean=isChecked;
-            afterTextChanged(editableStatic);
+            if(editableStatic!=null){
+                afterTextChanged(editableStatic);
+            }
 
         } else {
             rootViewBoolean=isChecked;
-            afterTextChanged(editableStatic);
+            if(editableStatic!=null){
+                afterTextChanged(editableStatic);
+            }
         }
     }
 
