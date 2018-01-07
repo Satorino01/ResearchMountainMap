@@ -39,31 +39,61 @@
         android:id="@+id/gpsStatusView"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="40dp"
-        android:layout_width="128dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:text="GPS：OFF"
+        android:text="GPS:OFF"
         android:textColor="#333333"
         android:textSize="10sp" />
 
     <TextView
         android:id="@+id/netStatusView"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="50dp"
-        android:layout_width="128dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="40dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:text="NET：OFF"
+        android:text="NET:OFF"
         android:textColor="#333333"
         android:textSize="10sp" />
 
     <TextView
-        android:id="@+id/countView"
-        android:layout_width="128dp"
+        android:id="@+id/locationStatusView"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="50dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:text="位置:OFF"
+        android:textColor="#333333"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/accuracyStatusView"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="50dp"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="精度:null"
+        android:textColor="#333333"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/altitudeStatusView"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="60dp"
-        android:text="位置情報取得回数：null"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="標高:null"
         android:textColor="#333333"
-        android:textSize="10sp"/>
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/speedStatusView"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="60dp"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:text="速度:null"
+        android:textColor="#333333"
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/locationView"
@@ -167,6 +197,30 @@
         android:onClick="onClickTargetMountain"
         android:scaleType="centerInside"
         android:background="@drawable/targetbutton" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_marginBottom="48dp"
+        android:layout_marginLeft="8dp"
+        android:checked="false"
+        android:text="登山ルート表示(重)"
+        android:textColor="#333333"
+        android:textSize="10sp"
+        tools:checked="false" />
+
+    <TextView
+        android:id="@+id/countView"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="8dp"
+        android:text="位置情報取得回数:null"
+        android:textColor="#333333"
+        android:textSize="10sp"/>
 
     <!--ImageButton
         android:id="@+id/bugerButton"

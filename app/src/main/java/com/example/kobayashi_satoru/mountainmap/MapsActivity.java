@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -42,25 +45,26 @@ import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.example.kobayashi_satoru.mountainmap.R.string.takaozannmap;
-
 //FragmentActivityでFragmentクラスを継承します
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,TextWatcher {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener,TextWatcher,CompoundButton.OnCheckedChangeListener {
 
     GoogleMap mMap;
     LocationManager locationManager;
@@ -74,13 +78,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             .color(Color.BLUE)
             .geodesic(true);
     ArrayList<LatLng> rootlist = new ArrayList<LatLng>();
+    //ルート表示のスイッチ用
+    Boolean rootViewBoolean = false;
 
     // Fragmentで表示するViewを作成するメソッド
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            Thread.sleep(2000);// ここで2秒間スリープし、スプラッシュを表示させたままにする。
+            Thread.sleep(3000);// ここで3秒間スリープし、スプラッシュを表示させたままにする。
         } catch (InterruptedException e) {
         }
         setTheme(R.style.AppTheme);// スプラッシュの表示動作指定。themeを通常themeに変更する
@@ -112,13 +118,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //ネットにつなっているかの初回確認
         TextView netStatusText = findViewById(R.id.netStatusView);
         if (netWorkCheck(this.getApplicationContext())){
-            netStatusText.setText("NET：ON");
+            netStatusText.setText("NET:ON");
         } else {
-            netStatusText.setText("NET：OFF");
+            netStatusText.setText("NET:OFF");
         }
         //editTextのリアルタイム監視に必要なメソッド
         EditText edittext = findViewById(R.id.editText);
         edittext.addTextChangedListener(this);
+        //Switchボタン
+        Switch switch1 = findViewById(R.id.switch1);
+        switch1.setOnCheckedChangeListener((CompoundButton.OnCheckedChangeListener) this);
     }
 
     // 緯度経度を入れて経路を検索
@@ -319,14 +328,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double y = targetlocation.getLongitude();// 経度の代入
         long nowTimeUTC = targetlocation.getTime();//UNIX時刻
         String japTime = UnixTimeTrans(nowTimeUTC);//UNIX時刻を文字列に変換
+        float accuracy = targetlocation.getAccuracy();// 精度を取得,単位m
+        double altitude = targetlocation.getAltitude();// 標高を取得,単位m
         float targetSpeed = targetlocation.getSpeed();//速度	確認用hasSpeed()	単位m毎秒
         float targetDirection = targetlocation.getBearing();//方位 確認用hasBearing()	北が０で時計回りに増加します。
         LatLng myLocation = new LatLng(x, y);
-        CountView();
+
+        TextView accuracyStatusText = findViewById(R.id.accuracyStatusView);
+        String accuracyString = Integer.toString((int)accuracy);
+        accuracyStatusText.setText("精度:"+accuracyString+"m");
+
+        TextView altitudeStatusText = findViewById(R.id.altitudeStatusView);
+        String altitudeString = Integer.toString((int)altitude);
+        altitudeStatusText.setText("標高:"+ altitudeString+"m");
+
+        TextView speedStatusText = findViewById(R.id.speedStatusView);
+        String speedString = Float.toString(targetSpeed);
+        speedStatusText.setText("速度:"+ speedString+"m/s");
+
+        TextView gpsStatusText = findViewById(R.id.gpsStatusView);
+        gpsStatusText.setText("GPS:ON");
+
+        TextView locationStatusText = findViewById(R.id.locationStatusView);
+        locationStatusText.setText("位置:ON");
+
+        if(targetSpeed>=0.5) {
+            CountView();
+            //トラッキング用ポイントの追加
+            Polyline polyline = mMap.addPolyline(rectOptions);
+            rootlist.add(myLocation);
+            polyline.setPoints(rootlist);
+        }
         if(Makercount==1) {
             cameraZoom(myLocation);
-            TextView gpsStatusText = findViewById(R.id.gpsStatusView);
-            gpsStatusText.setText("GPS：ON");
         }
         //MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker))
         if(Makercount%10==0) {
@@ -340,12 +374,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
             TextView locationText = findViewById(R.id.locationView);
-            locationText.setText("現在地："+ string);
+            locationText.setText("現在地:"+ string);
         }
-        //トラッキング用ポイントの追加
-        Polyline polyline = mMap.addPolyline(rectOptions);
-        rootlist.add(myLocation);
-        polyline.setPoints(rootlist);
     }
     private void cameraZoom( LatLng location ) {
         float zoom = 14.0f; //ズームレベル
@@ -358,8 +388,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void CountView(){
         Makercount+=1;
         String kazumo = String.valueOf(Makercount);
-        TextView textViewHensuu = findViewById(R.id.countView);
-        textViewHensuu.setText("位置情報取得回数："+kazumo);
+        //TextView textViewHensuu = findViewById(R.id.countView);
+        //textViewHensuu.setText("位置情報取得回数:"+kazumo);
     }
 
     //long型UNIX時間をStringを日本の日付に変換するメソッド
@@ -419,9 +449,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //ネットにつなっているかの確認
         TextView netStatusText = findViewById(R.id.netStatusView);
         if (netWorkCheck(this.getApplicationContext())){
-            netStatusText.setText("NET：ON");
+            netStatusText.setText("NET:ON");
         } else {
-            netStatusText.setText("NET：OFF");
+            netStatusText.setText("NET:OFF");
         }
     }
 
@@ -431,7 +461,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderEnabled(String s) {
         //プロバイダが利用可能になったら呼ばれる
         TextView gpsStatusText = findViewById(R.id.gpsStatusView);
-        gpsStatusText.setText("GPS：ON");
+        gpsStatusText.setText("GPS:ON");
     }
 
     //LocationListenerで自動生成された必要な関数
@@ -440,7 +470,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderDisabled(String s) {
         //ロケーションプロバイダーが使われなくなったらリムーブする必要がある
         TextView gpsStatusText = findViewById(R.id.gpsStatusView);
-        gpsStatusText.setText("GPS：OFF");
+        gpsStatusText.setText("GPS:OFF");
     }
     //ネットワークステータスのチェックに必要な関数
     public static boolean netWorkCheck(Context context){
@@ -476,7 +506,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(editable.toString().equals("高尾山")){
             mMap.clear();
             mClusterManager.clearItems();
-
             TargetLatLng = new LatLng(35.6251319,139.2435817);
             TargetMountainName = editable.toString();
             TargetMountainNamePhotoID = "takaozann";
@@ -519,17 +548,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             mClusterManager.cluster();
             //経路表示未熟
-            PolylineOptions rectOptions = new PolylineOptions()
-                    .width(4)
-                    .color(Color.CYAN)
-                    .geodesic(true);
+            //mapfileの取得
+            String fileName = TargetMountainNamePhotoID+"map";
+            String mapFileTxt = "";
+            try {
+                mapFileTxt = loadTextRaw(fileName,this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String[] line = mapFileTxt.split("\n");
+
+            //トラッキングの線の設定
+            /*
+            PolylineOptions rectOptions = new PolylineOptions().width(1).color(Color.CYAN).geodesic(true);
             ArrayList<LatLng> mountainRootlist = new ArrayList<LatLng>();
             Polyline mountainPolyline = mMap.addPolyline(rectOptions);
-            for(int i=0; i < 20;i++){
-                mountainRootlist.add(photoLatlong[i]);
-                mountainRootlist.add(new LatLng(35.6246956,139.2432038));
+            for(int i = 0; i < line.length; i++) {
+                String[] latlngString = line[i].split(",");
+                LatLng rootPoint = new LatLng(Double.parseDouble(latlngString[0]),Double.parseDouble(latlngString[1]));
+                mountainRootlist.add(rootPoint);
             }
             mountainPolyline.setPoints(mountainRootlist);
+            */
+            if(rootViewBoolean){
+                CircleOptions[] circleOptions = new CircleOptions[line.length];
+                for (int i = 0; i < line.length; i++) {
+                    String[] latlngString = line[i].split(",");
+                    LatLng rootPoint = new LatLng(Double.parseDouble(latlngString[0]), Double.parseDouble(latlngString[1]));
+                    circleOptions[i] = new CircleOptions()
+                            .center(rootPoint)
+                            .radius(0.5)
+                            .strokeColor(Color.CYAN)
+                            .strokeWidth(10);
+                    mMap.addCircle(circleOptions[i]);
+                }
+            }
         }else{
             TargetLatLng = new LatLng(0,0);
             TargetMountainName = "null";
@@ -537,6 +590,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.clear();
         }
     }
+    //テキストの読み込み
+    //設定値
+    private static final String DEFAULT_ENCORDING = "UTF-8";//デフォルトのエンコード
+    private static final int DEFAULT_READ_LENGTH = 8192;    //一度に読み込むバッファサイズ
+    //ストリームから読み込み、バイト配列で返す
+    public static final byte[] readStream(InputStream inputStream, int readLength) throws IOException {
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream(readLength);  //一時バッファのように使う
+        final byte[] bytes = new byte[readLength];    //read() 毎に読み込むバッファ
+        final BufferedInputStream bis = new BufferedInputStream(inputStream, readLength);
+
+        try {
+            int len = 0;
+            while ((len = bis.read(bytes, 0, readLength)) > 0) {
+                byteStream.write(bytes, 0, len);    //ストリームバッファに溜め込む
+            }
+            return byteStream.toByteArray();    //byte[] に変換
+
+        } finally {
+            try {
+                byteStream.reset();     //すべてのデータを破棄
+                bis.close();            //ストリームを閉じる
+            } catch (Exception e) {
+                //IOException
+            }
+        }
+    }
+    //ストリームから読み込み、テキストエンコードして返す
+    public static final String loadText(InputStream inputStream, String charsetName)
+            throws IOException, UnsupportedEncodingException {
+        return new String(readStream(inputStream, DEFAULT_READ_LENGTH), charsetName);
+    }
+    //ローカルシステムから、テキストファイルを読み込む
+    public static final String loadTextRaw(String resName, Context context) throws IOException {
+        final int id = context.getResources().getIdentifier(resName, "raw", context.getPackageName());
+        if (id == 0) {    //エラーにはならない
+            throw new FileNotFoundException();
+        }
+        InputStream is = context.getResources().openRawResource(id);
+        return loadText(is,DEFAULT_ENCORDING);
+    }
+
     public void onClickGoogleWalk(View view) {
         if(TargetMountainName.equals("null")) {
             Toast toast = Toast.makeText(this,
@@ -633,6 +727,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast toast = Toast.makeText(this,
                     "ごめんなさい！未実装です。", Toast.LENGTH_LONG);
             toast.show();
+    }
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked == true) {
+            rootViewBoolean=isChecked;
+            Toast.makeText(MapsActivity.this, "ONにしました。もう一度山名を入力してください", Toast.LENGTH_LONG).show();
+        } else {
+            rootViewBoolean=isChecked;
+            Toast.makeText(MapsActivity.this, "OFFにしました。もう一度山名を入力してください", Toast.LENGTH_LONG).show();
+        }
     }
 
 }
