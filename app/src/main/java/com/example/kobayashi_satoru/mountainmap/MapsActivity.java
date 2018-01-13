@@ -358,7 +358,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             rootlist.add(myLocation);
             polyline.setPoints(rootlist);
         }
-        if(Makercount==1) {
+        if(Makercount==0) {
             cameraZoom(myLocation);
         }
         //MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.photomarker))
