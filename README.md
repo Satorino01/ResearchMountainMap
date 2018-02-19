@@ -18,5 +18,5 @@ git clone したら androidstudio で開いてください。
 ## 使い方
 
 アプリを起動したら登る山の名称を入力し、地図としてお使いください。
-<img src="intro_img/05.png" width="500">
-<img src="intro_img/04.png" width="500">
+<img src="intro_img/05.png" width="700">
+<img src="intro_img/04.png" width="700">
