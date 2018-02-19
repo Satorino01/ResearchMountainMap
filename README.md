@@ -1,6 +1,6 @@
 # ResearchMountainMap
-大学の卒業研究で作ったマップアプリ。登る山の名称を入力したら、頂上までのルートや風景画像、歩いたルート、現在地の地名などを表示してくれます。
-対応OS は Android 6.0/6.0.1 Marshmallow 以上を対象としています。<br>
+大学の卒業研究で作ったマップアプリです。登る山の名称を入力したら、頂上までのルートや風景画像、歩いたルート、現在地の地名などを表示します。<br>
+対応OS：Android 6.0/6.0.1 Marshmallow 以上<br>
 2018年1月10日：データセットを「高尾山」しか入れていないため、頂上までのルート表示は「高尾山」でのみ使えます。
 <img src="intro_img/splash.png" height="400"><img src="intro_img/02.png" height="400"><img src="intro_img/03.jpg" height="400">
 
